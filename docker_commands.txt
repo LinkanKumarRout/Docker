@@ -1,0 +1,11 @@
+Command	                                            Purpose
+docker pull <image>	                    Download image from Docker Hub
+docker build -t <tag> .	                Build image from Dockerfile
+docker run <image>	                    Run container from image
+docker ps [-a]	                        List (all) containers
+docker stop/start <name>	              Stop/start container
+docker rm <name>	                      Remove container
+docker rmi <image>	                    Remove image
+docker exec -it <name> bash	            Access running container shell
+docker logs <name>	                    Show container logs
+docker-compose up	                      Start services from docker-compose.yml
