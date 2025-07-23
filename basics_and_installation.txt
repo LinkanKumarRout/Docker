@@ -1,0 +1,76 @@
+What is Docker ?
+- Docker is a platform that allows you to package applications and their dependencies into containers—lightweight, portable units that run consistently across environments (development, staging, production).
+
+How Docker Works (In Simple Terms) ?
+- A container is like a virtual machine, but more lightweight.
+- Each container runs from a Docker image, which is a snapshot of a system with preinstalled software.
+- Docker uses the host system's kernel but isolates processes, filesystems, and networks.
+
+Step By Step Installation Guide
+--------------------------------
+Step 1: Install Docker
+Windows/macOS: Download Docker Desktop from https://www.docker.com/products/docker-desktop
+
+Linux (Ubuntu example):
+sudo apt update
+sudo apt install docker.io
+sudo systemctl start docker
+sudo systemctl enable docker
+
+(Optional) Add user to Docker group:
+sudo usermod -aG docker $USER
+
+Step 2: Verify Docker Installation
+docker --version
+docker info
+
+Step 3: Run Your First Container
+docker run hello-world
+This runs a test container to confirm your setup works.
+
+Step 4: Pull an Image from Docker Hub
+docker pull nginx
+This downloads the latest nginx image.
+
+Step 5: Run a Container
+docker run -d -p 8080:80 --name my-nginx nginx
+
+-d: Detached mode
+
+-p: Maps host port 8080 to container port 80
+
+--name: Names your container
+
+Open http://localhost:8080 to see NGINX in action.
+
+Step 6: Check Running Containers
+docker ps            # Show running containers
+docker ps -a         # Show all containers (including stopped)
+
+Step 7: Stop, Start, Remove Containers
+docker stop my-nginx         # Stop the container
+docker start my-nginx        # Start it again
+docker rm my-nginx           # Remove container
+
+Step 8: Build a Docker Image (from Dockerfile)
+Create a file called Dockerfile:
+# Sample Python App
+FROM python:3.9
+WORKDIR /app
+COPY . .
+RUN pip install -r requirements.txt
+CMD ["python", "app.py"]
+
+Build and run it:
+docker build -t my-python-app .
+docker run -d -p 5000:5000 my-python-app
+
+Common Use Cases
+-----------------
+Use Case	Description
+Development environments	- Run consistent dev setups with isolated containers
+Microservices architecture	- Deploy multiple small services independently
+CI/CD pipelines	- Build, test, deploy apps in containers
+Simplified deployment	- Run the same container in staging, production, etc.
+Lightweight virtual machines	- Use containers instead of heavy VMs
+
