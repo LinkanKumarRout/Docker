@@ -9,3 +9,78 @@ docker rmi <image>	                    Remove image
 docker exec -it <name> bash	            Access running container shell
 docker logs <name>	                    Show container logs
 docker-compose up	                      Start services from docker-compose.yml
+
+# Some more commands
+----------------------
+# Build from Dockerfile in current dir
+docker build -t myimage:tag .
+
+# List images / containers
+docker images
+docker ps          # running
+docker ps -a       # all (stopped too)
+
+# Run / stop / remove
+docker run --name myctr -p 8000:8000 myimage:tag
+docker stop myctr
+docker start myctr
+docker rm myctr
+
+# Shell inside a container
+docker exec -it myctr bash
+
+# Logs
+docker logs myctr
+docker logs -f myctr    # follow
+
+# Copy files
+docker cp myctr:/app/log.txt ./log.txt
+docker cp ./localfile myctr:/app/localfile
+
+# Volumes / networks
+docker volume ls
+docker volume rm <vol>
+docker network ls
+docker network inspect <net>
+
+# Cleanup
+docker system df
+docker system prune -f
+docker image prune -a -f
+
+Docker Compose (multi-container apps)
+--------------------------------------
+# Build & run
+docker compose up --build
+docker compose up -d --build
+
+# Status & logs
+docker compose ps
+docker compose logs
+docker compose logs -f web
+docker compose logs -f worker beat db redis
+
+# Exec into a service
+docker compose exec web bash
+docker compose exec worker bash
+
+# Run one-off commands
+docker compose run --rm web python manage.py migrate
+
+# Stop / start / restart services
+docker compose stop
+docker compose start
+docker compose restart web
+docker compose restart worker beat
+
+# Scale workers
+docker compose up -d --scale worker=3
+
+# Tear down
+docker compose down              # keep volumes
+docker compose down -v           # remove named volumes too (DB DATA WILL BE LOST)
+
+# Rebuild only a service
+docker compose build web
+docker compose up -d --no-deps --build web
+
