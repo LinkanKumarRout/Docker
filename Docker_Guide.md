@@ -2,7 +2,7 @@
 
 Docker packages an application and everything it needs to run — the language runtime, libraries, config, and start script — into an **image**. A running copy of that image is a **container**. The same image starts the same way on a laptop, a build server, and a production machine.
 
-This guide covers the engine, Docker Desktop, Docker Hub, Docker Compose, Dockerfiles, entrypoint scripts, and how those pieces fit into CI/CD. Examples use a small Python API so each file is complete enough to copy. The last section maps the same ideas onto this repository (SAF).
+This guide covers the engine, Docker Desktop, Docker Hub, Docker Compose, Dockerfiles, entrypoint scripts, and how those pieces fit into CI/CD. Examples use a small Python API (`notes-api`) so each file is complete enough to copy. The last section maps the same ideas onto a sample multi-service app called **Orbit**.
 
 ---
 
@@ -32,7 +32,7 @@ This guide covers the engine, Docker Desktop, Docker Hub, Docker Compose, Docker
 22. [CI/CD](#22-cicd)
 23. [Security](#23-security)
 24. [Disk, cleanup, and debugging](#24-disk-cleanup-and-debugging)
-25. [How SAF uses Docker](#25-how-saf-uses-docker)
+25. [How Orbit uses Docker](#25-how-orbit-uses-docker)
 26. [Concept index](#26-concept-index)
 
 ---
@@ -1234,7 +1234,7 @@ This waits until the database **process has started**, not until Postgres accept
 
 ### 19.8 One image, several services
 
-The API, the worker, and the scheduler are the same image with different `command` values. Build once (`image: notes-api:local` on the service that has `build:`), and let the others use that tag. Rebuilding four times from the same Dockerfile wastes cache and drifts if args differ. SAF does this: `api`, `ingest-consumer`, `celery-worker`, and `celery-beat` share one image.
+The API, the worker, and the scheduler are the same image with different `command` values. Build once (`image: notes-api:local` on the service that has `build:`), and let the others use that tag. Rebuilding four times from the same Dockerfile wastes cache and drifts if args differ. Orbit does this: `api`, `ingest-consumer`, `celery-worker`, and `celery-beat` share one image.
 
 ### 19.9 Variable substitution
 
@@ -1719,19 +1719,19 @@ This prints the merged, interpolated file. It catches a missing variable and a m
 
 ---
 
-## 25. How SAF uses Docker
+## 25. How Orbit uses Docker
 
-The ideas above are already the layout of this repository.
+Orbit is a fictional multi-service product used here only to show how the ideas above land in a real repo layout. Nothing about the name matters; the patterns transfer to any similar stack.
 
 | Piece | Where it lives |
 |-------|----------------|
-| Backend image | `backend/Dockerfile` — `python:3.12-slim`, non-root user `saf`, build arg `INCLUDE_DEV_TOOLS`, entrypoint `docker/entrypoint.sh` |
-| Entrypoint | `backend/docker/entrypoint.sh` — wait for the database, `migrate`, optional `bootstrap_saf`, optional `collectstatic`, then `exec` Gunicorn with Uvicorn workers |
+| Backend image | `backend/Dockerfile` — `python:3.12-slim`, non-root user `orbit`, build arg `INCLUDE_DEV_TOOLS`, entrypoint `docker/entrypoint.sh` |
+| Entrypoint | `backend/docker/entrypoint.sh` — wait for the database, `migrate`, optional `bootstrap_orbit`, optional `collectstatic`, then `exec` Gunicorn with Uvicorn workers |
 | Ignore file | `backend/.dockerignore` — keeps `.venv`, `.env`, tests, and Compose files out of the image |
 | Production stack | `backend/docker-compose.yml` — TimescaleDB, Redis, NATS JetStream, API, ingest consumer, Celery worker, Celery beat |
 | Development stack | `backend/docker-compose.dev.yml` — same services, published database port, `INCLUDE_DEV_TOOLS=true`, separate volumes so dev data and prod data never mix |
-| Edge image | `saf_edge/Dockerfile` — collector image |
-| Edge stack example | `saf_edge/docker-compose.yml.example` |
+| Edge image | `orbit_edge/Dockerfile` — collector image |
+| Edge stack example | `orbit_edge/docker-compose.yml.example` |
 
 Production and development are two Compose files on purpose, matching [section 19.6](#196-several-files). One image is reused for the API, the NATS consumer, and both Celery processes, matching [section 19.8](#198-one-image-several-services). Databases bind to `127.0.0.1` in production so they are not published on the public internet. Healthchecks gate `depends_on`, and the entrypoint still waits for the database itself.
 
@@ -1805,4 +1805,4 @@ A checklist of the concepts this guide covers, so you can find a name when you s
 
 - Docker’s own manuals: Dockerfile reference, Compose specification, and Engine API. They are the authority when a flag in this guide gains a new option.
 - OCI image and runtime specifications, for what “standard container” means outside Docker’s CLI.
-- This repository’s `backend/README.md` for the SAF-specific ports, env files, and services.
+- Your own app’s `backend/README.md` for project-specific ports, env files, and services.
